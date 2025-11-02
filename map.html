@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map - Tunisia Lovers Club</title>
+    <meta name="description" content="Explore Tunisia's hidden spots on our interactive map. Discover secret beaches, ancient ruins, local markets, and hidden oases.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --sand: #F5E6D3;
+            --mediterranean-blue: #1B4B5A;
+            --gold: #D4AF37;
+            --charcoal: #2C3E50;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--sand);
+            color: var(--charcoal);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .font-accent {
+            font-family: 'Crimson Text', serif;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--mediterranean-blue), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(245, 230, 211, 0.95);
+        }
+        
+        .map-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 230, 211, 0.9));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .filter-panel {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 230, 211, 0.9));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(27, 75, 90, 0.2);
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .filter-btn:hover {
+            border-color: var(--mediterranean-blue);
+            background: rgba(27, 75, 90, 0.1);
+        }
+        
+        .filter-btn.active {
+            background: var(--mediterranean-blue);
+            color: white;
+            border-color: var(--mediterranean-blue);
+        }
+        
+        .search-input {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(27, 75, 90, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--mediterranean-blue);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 3px rgba(27, 75, 90, 0.1);
+        }
+        
+        .location-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 230, 211, 0.9));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .location-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-marker {
+            background: var(--mediterranean-blue);
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(27, 75, 90, 0.3);
+        }
+        
+        .marker-oasis { background: #10b981; }
+        .marker-village { background: #3b82f6; }
+        .marker-ruins { background: #8b5cf6; }
+        .marker-beach { background: #06b6d4; }
+        .marker-architecture { background: #f59e0b; }
+        
+        #map {
+            height: 600px;
+            border-radius: 12px;
+        }
+        
+        .leaflet-popup-content-wrapper {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 230, 211, 0.95));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+        }
+        
+        .leaflet-popup-content {
+            margin: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-display font-bold text-gradient">Tunisia Lovers Club</a>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                    <a href="guides.html" class="text-gray-700 hover:text-blue-600 transition-colors">Guides</a>
+                    <a href="map.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Map</a>
+                    <a href="gallery.html" class="text-gray-700 hover:text-blue-600 transition-colors">Gallery</a>
+                    <a href="excursions.html" class="text-gray-700 hover:text-blue-600 transition-colors">Excursions</a>
+                    
+                    <!-- Auth Links -->
+                    <div class="auth-link">
+                        <a href="login.html" class="text-gray-700 hover:text-blue-600 transition-colors">Login</a>
+                        <a href="signup.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors ml-4">Join Club</a>
+                    </div>
+                    
+                    <!-- Member Links -->
+                    <div class="member-link hidden">
+                        <a href="dashboard.html" class="text-gray-700 hover:text-blue-600 transition-colors welcome-message">Dashboard</a>
+                        <button onclick="logout()" class="text-gray-700 hover:text-red-600 transition-colors ml-4">Logout</button>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-t border-white/20">
+            <div class="px-4 py-4 space-y-3">
+                <a href="index.html" class="block text-gray-700 hover:text-blue-600">Home</a>
+                <a href="guides.html" class="block text-gray-700 hover:text-blue-600">Guides</a>
+                <a href="map.html" class="block text-blue-600 font-medium">Map</a>
+                <a href="gallery.html" class="block text-gray-700 hover:text-blue-600">Gallery</a>
+                <a href="excursions.html" class="block text-gray-700 hover:text-blue-600">Excursions</a>
+                <div class="auth-link pt-3 border-t border-gray-200">
+                    <a href="login.html" class="block text-gray-700 hover:text-blue-600">Login</a>
+                    <a href="signup.html" class="block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mt-2">Join Club</a>
+                </div>
+                <div class="member-link hidden pt-3 border-t border-gray-200">
+                    <a href="dashboard.html" class="block text-gray-700 hover:text-blue-600 welcome-message">Dashboard</a>
+                    <button onclick="logout()" class="block text-gray-700 hover:text-red-600 mt-2">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-display font-bold text-gray-800 mb-6">
+                    Tunisia's <span class="text-gradient">Hidden Spots</span>
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto font-accent">
+                    Discover secret locations, ancient ruins, pristine beaches, and authentic local experiences 
+                    that only insiders know about. Each pin on our map reveals a treasure waiting to be explored.
+                </p>
+            </div>
+
+            <!-- Map and Controls -->
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Filter Panel -->
+                <div class="lg:col-span-1">
+                    <div class="filter-panel p-6 sticky top-24">
+                        <h3 class="text-xl font-display font-semibold mb-6 text-gray-800">Filter Locations</h3>
+                        
+                        <!-- Search -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Search Locations</label>
+                            <input 
+                                type="text" 
+                                id="location-search" 
+                                class="search-input w-full" 
+                                placeholder="Search by name or type..."
+                            >
+                        </div>
+
+                        <!-- Category Filters -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Categories</label>
+                            <div class="space-y-2">
+                                <button class="filter-btn active w-full text-left" data-filter="all">
+                                    All Locations
+                                </button>
+                                <button class="filter-btn w-full text-left" data-filter="oasis">
+                                    🏜️ Hidden Oases
+                                </button>
+                                <button class="filter-btn w-full text-left" data-filter="village">
+                                    🏘️ Traditional Villages
+                                </button>
+                                <button class="filter-btn w-full text-left" data-filter="ruins">
+                                    🏛️ Ancient Ruins
+                                </button>
+                                <button class="filter-btn w-full text-left" data-filter="beach">
+                                    🏖️ Secret Beaches
+                                </button>
+                                <button class="filter-btn w-full text-left" data-filter="architecture">
+                                    🏰 Unique Architecture
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="mb-6">
+                            <h4 class="font-semibold mb-3 text-gray-800">Map Legend</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                                    <span>Oases</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+                                    <span>Villages</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-purple-500 rounded-full mr-2"></div>
+                                    <span>Ruins</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-cyan-500 rounded-full mr-2"></div>
+                                    <span>Beaches</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
+                                    <span>Architecture</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="border-t border-gray-200 pt-4">
+                            <h4 class="font-semibold mb-3 text-gray-800">Quick Stats</h4>
+                            <div class="space-y-2 text-sm text-gray-600">
+                                <div class="flex justify-between">
+                                    <span>Total Spots:</span>
+                                    <span id="total-spots">24</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Your Favorites:</span>
+                                    <span id="favorite-count">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Visited:</span>
+                                    <span id="visited-count">3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div class="lg:col-span-3">
+                    <div class="map-container p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-display font-semibold text-gray-800">Interactive Map</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="centerMap()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                    Center Map
+                                </button>
+                                <button onclick="toggleFullscreen()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                                    Fullscreen
+                                </button>
+                            </div>
+                        </div>
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Locations -->
+            <div class="mt-16">
+                <h2 class="text-3xl font-display font-bold text-center mb-12">
+                    Featured <span class="text-gradient">Hidden Locations</span>
+                </h2>
+                <div class="featured-locations grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Content will be loaded by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="text-3xl font-display font-bold text-gradient mb-4">Tunisia Lovers Club</div>
+                <p class="text-gray-400 mb-6 font-accent">
+                    Discovering Tunisia's hidden treasures, one exclusive experience at a time.
+                </p>
+                <div class="text-gray-500 text-sm">
+                    © 2024 Tunisia Lovers Club. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="main.js"></script>
+    
+    <!-- Map Specific JavaScript -->
+    <script>
+        let map;
+        let markers = [];
+        let hiddenSpots = [];
+        let filteredSpots = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            loadHiddenSpots();
+            setupFilters();
+            setupSearch();
+            renderFeaturedLocations();
+        });
+
+        function initializeMap() {
+            // Initialize map centered on Tunisia
+            map = L.map('map').setView([34.0, 9.0], 7);
+            
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            // Add custom controls
+            map.zoomControl.setPosition('bottomright');
+        }
+
+        function loadHiddenSpots() {
+            hiddenSpots = [
+                {
+                    id: 1,
+                    name: "Chebika Oasis",
+                    type: "oasis",
+                    lat: 33.8869,
+                    lng: 10.0887,
+                    description: "Mountain oasis with stunning waterfalls and palm groves.",
+                    image: "resources/tunisia-4.jpg",
+                    difficulty: "Moderate",
+                    bestTime: "Spring, Fall",
+                    tips: "Wear hiking shoes, bring water",
+                    rating: 4.8,
+                    featured: true
+                },
+                {
+                    id: 2,
+                    name: "Sidi Bou Said",
+                    type: "village",
+                    lat: 36.8665,
+                    lng: 10.3292,
+                    description: "Enchanting blue and white Mediterranean village.",
+                    image: "resources/tunisia-9.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Visit early morning, try mint tea",
+                    rating: 4.9,
+                    featured: true
+                },
+                {
+                    id: 3,
+                    name: "Dougga Ruins",
+                    type: "ruins",
+                    lat: 36.4539,
+                    lng: 9.5469,
+                    description: "Best-preserved Roman ruins in North Africa.",
+                    image: "resources/tunisia-14.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Spring, Fall",
+                    tips: "Hire a guide, bring sunscreen",
+                    rating: 4.7,
+                    featured: true
+                },
+                {
+                    id: 4,
+                    name: "Djerba Hidden Beaches",
+                    type: "beach",
+                    lat: 33.7173,
+                    lng: 10.5825,
+                    description: "Pristine Mediterranean beaches away from crowds.",
+                    image: "resources/tunisia-10.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Summer",
+                    tips: "Rent a scooter, bring snorkeling gear",
+                    rating: 4.6,
+                    featured: false
+                },
+                {
+                    id: 5,
+                    name: "Ksar Ouled Soltane",
+                    type: "architecture",
+                    lat: 33.7333,
+                    lng: 8.7833,
+                    description: "Ancient granary with unique Berber architecture.",
+                    image: "resources/tunisia-5.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Great for photography, visit early",
+                    rating: 4.5,
+                    featured: false
+                },
+                {
+                    id: 6,
+                    name: "Matmata Underground Homes",
+                    type: "architecture",
+                    lat: 33.5433,
+                    lng: 9.9672,
+                    description: "Unique troglodyte homes built underground.",
+                    image: "resources/tunisia-2.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Star Wars filming location, bring flashlight",
+                    rating: 4.8,
+                    featured: true
+                },
+                {
+                    id: 7,
+                    name: "Chott el Jerid Salt Flats",
+                    type: "oasis",
+                    lat: 33.8000,
+                    lng: 8.0000,
+                    description: "Surreal salt lake with mirror reflections.",
+                    image: "resources/tunisia-15.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Sunset",
+                    tips: "Best at sunset, watch for mirages",
+                    rating: 4.6,
+                    featured: false
+                },
+                {
+                    id: 8,
+                    name: "Kairouan Medina",
+                    type: "village",
+                    lat: 35.6784,
+                    lng: 10.0968,
+                    description: "Islam's fourth holiest city with ancient medina.",
+                    image: "resources/tunisia-6.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Dress modestly, visit Great Mosque",
+                    rating: 4.8,
+                    featured: false
+                },
+                {
+                    id: 9,
+                    name: "Bulla Regia Underground Villas",
+                    type: "ruins",
+                    lat: 36.5564,
+                    lng: 8.7586,
+                    description: "Roman villas built underground to escape heat.",
+                    image: "resources/tunisia-14.jpg",
+                    difficulty: "Moderate",
+                    bestTime: "Spring, Fall",
+                    tips: "Unique Roman architecture, bring water",
+                    rating: 4.7,
+                    featured: false
+                },
+                {
+                    id: 10,
+                    name: "El Haouaria Sea Caves",
+                    type: "beach",
+                    lat: 37.0000,
+                    lng: 11.0000,
+                    description: "Hidden sea caves along the Mediterranean coast.",
+                    image: "resources/tunisia-12.jpg",
+                    difficulty: "Moderate",
+                    bestTime: "Summer",
+                    tips: "Swimming spot, bring waterproof camera",
+                    rating: 4.5,
+                    featured: false
+                },
+                {
+                    id: 11,
+                    name: "Tamerza Canyon",
+                    type: "oasis",
+                    lat: 34.4000,
+                    lng: 8.2000,
+                    description: "Stunning canyon with waterfalls and palm groves.",
+                    image: "resources/tunisia-4.jpg",
+                    difficulty: "Moderate",
+                    bestTime: "Spring, Fall",
+                    tips: "Great for hiking, swimming possible",
+                    rating: 4.9,
+                    featured: true
+                },
+                {
+                    id: 12,
+                    name: "Nefta Palm Grove",
+                    type: "oasis",
+                    lat: 33.8833,
+                    lng: 7.8833,
+                    description: "Largest palm grove in Tunisia with 400,000 palms.",
+                    image: "resources/tunisia-6.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Peaceful walks, date harvesting season",
+                    rating: 4.6,
+                    featured: false
+                },
+                {
+                    id: 13,
+                    name: "Gafsa Old Town",
+                    type: "village",
+                    lat: 34.4167,
+                    lng: 8.7833,
+                    description: "Ancient Berber town with traditional architecture.",
+                    image: "resources/tunisia-9.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Authentic local experience, traditional crafts",
+                    rating: 4.4,
+                    featured: false
+                },
+                {
+                    id: 14,
+                    name: "Sbeitla Roman City",
+                    type: "ruins",
+                    lat: 35.2333,
+                    lng: 9.1333,
+                    description: "Well-preserved Roman city with three temples.",
+                    image: "resources/tunisia-14.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Spring, Fall",
+                    tips: "Less crowded than other ruins, great mosaics",
+                    rating: 4.8,
+                    featured: false
+                },
+                {
+                    id: 15,
+                    name: "Tabarka Coral Reefs",
+                    type: "beach",
+                    lat: 36.9667,
+                    lng: 8.7500,
+                    description: "Pristine coral reefs perfect for snorkeling.",
+                    image: "resources/tunisia-10.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Summer",
+                    tips: "Bring snorkeling gear, marine life viewing",
+                    rating: 4.7,
+                    featured: false
+                },
+                {
+                    id: 16,
+                    name: "Hennaia Pottery Village",
+                    type: "architecture",
+                    lat: 35.5000,
+                    lng: 10.6667,
+                    description: "Traditional pottery village with workshops.",
+                    image: "resources/tunisia-2.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Watch artisans work, buy authentic pottery",
+                    rating: 4.5,
+                    featured: false
+                },
+                {
+                    id: 17,
+                    name: "Oued Zitoun Oasis",
+                    type: "oasis",
+                    lat: 33.6000,
+                    lng: 8.9000,
+                    description: "Remote oasis with natural springs and gardens.",
+                    image: "resources/tunisia-4.jpg",
+                    difficulty: "Challenging",
+                    bestTime: "Spring, Fall",
+                    tips: "Requires 4x4 vehicle, peaceful solitude",
+                    rating: 4.8,
+                    featured: false
+                },
+                {
+                    id: 18,
+                    name: "Zaghouan Mountain Village",
+                    type: "village",
+                    lat: 36.3833,
+                    lng: 10.1500,
+                    description: "Mountain village with Roman water temple.",
+                    image: "resources/tunisia-9.jpg",
+                    difficulty: "Moderate",
+                    bestTime: "Spring, Fall",
+                    tips: "Roman temple ruins, mountain views",
+                    rating: 4.6,
+                    featured: false
+                },
+                {
+                    id: 19,
+                    name: "Uthina Archaeological Site",
+                    type: "ruins",
+                    lat: 36.7500,
+                    lng: 10.0000,
+                    description: "Lesser-known Roman ruins with amphitheater.",
+                    image: "resources/tunisia-14.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Uncrowded site, well-preserved mosaics",
+                    rating: 4.5,
+                    featured: false
+                },
+                {
+                    id: 20,
+                    name: "Monastir Ribat Beach",
+                    type: "beach",
+                    lat: 35.7667,
+                    lng: 10.8333,
+                    description: "Historic beach next to ancient ribat fortress.",
+                    image: "resources/tunisia-10.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Summer",
+                    tips: "Combine beach with historic site visit",
+                    rating: 4.4,
+                    featured: false
+                },
+                {
+                    id: 21,
+                    name: "Ksar Hadada",
+                    type: "architecture",
+                    lat: 33.1500,
+                    lng: 10.4167,
+                    description: "Fortified granary featured in Star Wars.",
+                    image: "resources/tunisia-5.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Star Wars filming location, great architecture",
+                    rating: 4.7,
+                    featured: false
+                },
+                {
+                    id: 22,
+                    name: "Gabes Oasis Town",
+                    type: "oasis",
+                    lat: 33.8833,
+                    lng: 10.1167,
+                    description: "Coastal oasis town with traditional markets.",
+                    image: "resources/tunisia-4.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Year-round",
+                    tips: "Date market, traditional crafts, coastal oasis",
+                    rating: 4.3,
+                    featured: false
+                },
+                {
+                    id: 23,
+                    name: "Le Kef Medina",
+                    type: "village",
+                    lat: 36.1833,
+                    lng: 8.7000,
+                    description: "Hilltop medina with Ottoman architecture.",
+                    image: "resources/tunisia-9.jpg",
+                    difficulty: "Moderate",
+                    bestTime: "Spring, Fall",
+                    tips: "Steep streets, panoramic views, Ottoman heritage",
+                    rating: 4.6,
+                    featured: false
+                },
+                {
+                    id: 24,
+                    name: "Thuburbo Majus Roman City",
+                    type: "ruins",
+                    lat: 36.4000,
+                    lng: 9.9167,
+                    description: "Roman city ruins with Capitol and temples.",
+                    image: "resources/tunisia-14.jpg",
+                    difficulty: "Easy",
+                    bestTime: "Spring, Fall",
+                    tips: "Peaceful site, Capitol ruins, thermal baths",
+                    rating: 4.7,
+                    featured: false
+                }
+            ];
+
+            filteredSpots = [...hiddenSpots];
+            addMarkersToMap();
+        }
+
+        function addMarkersToMap() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            filteredSpots.forEach(spot => {
+                // Create custom marker
+                const markerElement = document.createElement('div');
+                markerElement.className = `custom-marker marker-${spot.type}`;
+                markerElement.innerHTML = getMarkerIcon(spot.type);
+
+                const marker = L.marker([spot.lat, spot.lng], {
+                    icon: L.divIcon({
+                        html: markerElement.outerHTML,
+                        className: 'custom-div-icon',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    })
+                }).addTo(map);
+
+                // Create popup content
+                const popupContent = `
+                    <div class="max-w-sm">
+                        <img src="${spot.image}" alt="${spot.name}" class="w-full h-32 object-cover rounded-lg mb-3">
+                        <h3 class="font-semibold text-lg mb-2">${spot.name}</h3>
+                        <p class="text-gray-600 text-sm mb-3">${spot.description}</p>
+                        <div class="space-y-1 text-xs text-gray-500 mb-3">
+                            <div><strong>Difficulty:</strong> ${spot.difficulty}</div>
+                            <div><strong>Best Time:</strong> ${spot.bestTime}</div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="text-yellow-500 mr-1">★</span>
+                                <span class="text-sm">${spot.rating}</span>
+                            </div>
+                            <button class="favorite-btn text-lg ${isFavorited(spot.id, 'location') ? 'favorited' : ''}" 
+                                    data-id="${spot.id}" data-type="location">
+                                ${isFavorited(spot.id, 'location') ? '♥' : '♡'}
+                            </button>
+                        </div>
+                        <button onclick="showLocationDetails(${spot.id})" 
+                                class="w-full mt-3 bg-blue-600 text-white py-2 px-4 rounded text-sm hover:bg-blue-700 transition-colors">
+                            View Details
+                        </button>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, {
+                    maxWidth: 300,
+                    className: 'custom-popup'
+                });
+
+                markers.push(marker);
+            });
+        }
+
+        function getMarkerIcon(type) {
+            const icons = {
+                oasis: '🏜️',
+                village: '🏘️',
+                ruins: '🏛️',
+                beach: '🏖️',
+                architecture: '🏰'
+            };
+            return icons[type] || '📍';
+        }
+
+        function setupFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active button
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter spots
+                    const filter = this.dataset.filter;
+                    if (filter === 'all') {
+                        filteredSpots = [...hiddenSpots];
+                    } else {
+                        filteredSpots = hiddenSpots.filter(spot => spot.type === filter);
+                    }
+
+                    addMarkersToMap();
+                    updateStats();
+                });
+            });
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('location-search');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                filteredSpots = hiddenSpots.filter(spot => 
+                    spot.name.toLowerCase().includes(searchTerm) ||
+                    spot.description.toLowerCase().includes(searchTerm) ||
+                    spot.type.toLowerCase().includes(searchTerm)
+                );
+
+                addMarkersToMap();
+                updateStats();
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('total-spots').textContent = filteredSpots.length;
+            document.getElementById('favorite-count').textContent = favorites.filter(f => f.includes('location-')).length;
+        }
+
+        function centerMap() {
+            map.setView([34.0, 9.0], 7);
+        }
+
+        function toggleFullscreen() {
+            const mapContainer = document.getElementById('map');
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                mapContainer.requestFullscreen();
+            }
+        }
+
+        function renderFeaturedLocations() {
+            const featuredSpots = hiddenSpots.filter(spot => spot.featured);
+            const container = document.querySelector('.featured-locations');
+            
+            container.innerHTML = featuredSpots.map(spot => `
+                <div class="location-card p-6">
+                    <img src="${spot.image}" alt="${spot.name}" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-display font-semibold text-gray-800">${spot.name}</h3>
+                        <button class="favorite-btn text-2xl ${isFavorited(spot.id, 'location') ? 'favorited' : ''}" 
+                                data-id="${spot.id}" data-type="location">
+                            ${isFavorited(spot.id, 'location') ? '♥' : '♡'}
+                        </button>
+                    </div>
+                    <p class="text-gray-600 mb-4">${spot.description}</p>
+                    <div class="space-y-2 text-sm text-gray-500 mb-4">
+                        <div class="flex justify-between">
+                            <span>Difficulty:</span>
+                            <span>${spot.difficulty}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Best Time:</span>
+                            <span>${spot.bestTime}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Rating:</span>
+                            <div class="flex items-center">
+                                <span class="text-yellow-500 mr-1">★</span>
+                                <span>${spot.rating}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="focusOnLocation(${spot.lat}, ${spot.lng})" 
+                                class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            View on Map
+                        </button>
+                        <button onclick="showLocationDetails(${spot.id})" 
+                                class="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors text-sm">
+                            Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function focusOnLocation(lat, lng) {
+            map.setView([lat, lng], 15);
+            // Scroll to map
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showLocationDetails(spotId) {
+            const spot = hiddenSpots.find(s => s.id === spotId);
+            if (!spot) return;
+
+            // For demo, just show a notification
+            showNotification(`Showing details for ${spot.name}`, 'info');
+            
+            // In a real app, this would open a detailed modal or navigate to a detail page
+            console.log('Location details:', spot);
+        }
+
+        // Initialize stats
+        updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery - Tunisia Lovers Club</title>
+    <meta name="description" content="Explore stunning photography and videos of Tunisia's landscapes, culture, and hidden treasures from our community of travelers.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --sand: #F5E6D3;
+            --mediterranean-blue: #1B4B5A;
+            --gold: #D4AF37;
+            --charcoal: #2C3E50;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--sand);
+            color: var(--charcoal);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .font-accent {
+            font-family: 'Crimson Text', serif;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--mediterranean-blue), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(245, 230, 211, 0.95);
+        }
+        
+        .gallery-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 230, 211, 0.9));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery-item img {
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(27, 75, 90, 0.2);
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .filter-btn:hover {
+            border-color: var(--mediterranean-blue);
+            background: rgba(27, 75, 90, 0.1);
+        }
+        
+        .filter-btn.active {
+            background: var(--mediterranean-blue);
+            color: white;
+            border-color: var(--mediterranean-blue);
+        }
+        
+        .lightbox {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 230, 211, 0.95));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+        }
+        
+        .masonry-grid {
+            column-count: 3;
+            column-gap: 1.5rem;
+        }
+        
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .masonry-grid {
+                column-count: 1;
+            }
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, rgba(27, 75, 90, 0.1), rgba(212, 175, 55, 0.1));
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-display font-bold text-gradient">Tunisia Lovers Club</a>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                    <a href="guides.html" class="text-gray-700 hover:text-blue-600 transition-colors">Guides</a>
+                    <a href="map.html" class="text-gray-700 hover:text-blue-600 transition-colors">Map</a>
+                    <a href="gallery.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Gallery</a>
+                    <a href="excursions.html" class="text-gray-700 hover:text-blue-600 transition-colors">Excursions</a>
+                    
+                    <!-- Auth Links -->
+                    <div class="auth-link">
+                        <a href="login.html" class="text-gray-700 hover:text-blue-600 transition-colors">Login</a>
+                        <a href="signup.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors ml-4">Join Club</a>
+                    </div>
+                    
+                    <!-- Member Links -->
+                    <div class="member-link hidden">
+                        <a href="dashboard.html" class="text-gray-700 hover:text-blue-600 transition-colors welcome-message">Dashboard</a>
+                        <button onclick="logout()" class="text-gray-700 hover:text-red-600 transition-colors ml-4">Logout</button>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-t border-white/20">
+            <div class="px-4 py-4 space-y-3">
+                <a href="index.html" class="block text-gray-700 hover:text-blue-600">Home</a>
+                <a href="guides.html" class="block text-gray-700 hover:text-blue-600">Guides</a>
+                <a href="map.html" class="block text-gray-700 hover:text-blue-600">Map</a>
+                <a href="gallery.html" class="block text-blue-600 font-medium">Gallery</a>
+                <a href="excursions.html" class="block text-gray-700 hover:text-blue-600">Excursions</a>
+                <div class="auth-link pt-3 border-t border-gray-200">
+                    <a href="login.html" class="block text-gray-700 hover:text-blue-600">Login</a>
+                    <a href="signup.html" class="block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mt-2">Join Club</a>
+                </div>
+                <div class="member-link hidden pt-3 border-t border-gray-200">
+                    <a href="dashboard.html" class="block text-gray-700 hover:text-blue-600 welcome-message">Dashboard</a>
+                    <button onclick="logout()" class="block text-gray-700 hover:text-red-600 mt-2">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-display font-bold text-gray-800 mb-6">
+                    Tunisia <span class="text-gradient">Photo Gallery</span>
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto font-accent">
+                    Explore stunning photography and videos captured by our community of travelers. 
+                    From sweeping desert landscapes to intimate cultural moments, discover Tunisia through their eyes.
+                </p>
+            </div>
+
+            <!-- Gallery Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                <div class="stats-card">
+                    <div class="text-3xl font-bold text-blue-600 mb-2">1,247</div>
+                    <div class="text-gray-600">Photos</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-3xl font-bold text-green-600 mb-2">89</div>
+                    <div class="text-gray-600">Videos</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-3xl font-bold text-purple-600 mb-2">156</div>
+                    <div class="text-gray-600">Contributors</div>
+                </div>
+                <div class="stats-card">
+                    <div class="text-3xl font-bold text-yellow-600 mb-2">42</div>
+                    <div class="text-gray-600">Locations</div>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="mb-12">
+                <div class="flex flex-wrap justify-center gap-3 mb-8">
+                    <button class="filter-btn gallery-filter active" data-category="all">All Media</button>
+                    <button class="filter-btn gallery-filter" data-category="landscape">Landscapes</button>
+                    <button class="filter-btn gallery-filter" data-category="culture">Culture</button>
+                    <button class="filter-btn gallery-filter" data-category="food">Food & Cuisine</button>
+                    <button class="filter-btn gallery-filter" data-category="architecture">Architecture</button>
+                    <button class="filter-btn gallery-filter" data-category="people">People</button>
+                    <button class="filter-btn gallery-filter" data-category="animals">Wildlife</button>
+                    <button class="filter-btn gallery-filter" data-category="video">Videos</button>
+                </div>
+
+                <!-- Sort Options -->
+                <div class="flex justify-center">
+                    <select id="gallery-sort" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="random">Random</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="gallery-grid masonry-grid">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center mt-12">
+                <button id="load-more-gallery" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    Load More Images
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="lightbox-content max-w-5xl w-full max-h-full overflow-auto">
+                <div class="p-6">
+                    <!-- Close Button -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 id="lightbox-title" class="text-2xl font-display font-bold text-gray-800"></h3>
+                            <p id="lightbox-description" class="text-gray-600 mt-2"></p>
+                        </div>
+                        <button onclick="closeLightbox()" class="text-gray-500 hover:text-gray-700 text-3xl">×</button>
+                    </div>
+
+                    <!-- Media Content -->
+                    <div id="lightbox-media" class="mb-6">
+                        <!-- Image or video will be loaded here -->
+                    </div>
+
+                    <!-- Media Info -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <div id="lightbox-details" class="space-y-2 text-sm text-gray-600">
+                                <!-- Media details will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="flex justify-end items-end space-x-3">
+                            <button onclick="toggleFavoriteLightbox()" id="lightbox-favorite-btn" class="text-2xl">
+                                ♡
+                            </button>
+                            <button onclick="downloadMedia()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                Download
+                            </button>
+                            <button onclick="shareMedia()" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors">
+                                Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="text-3xl font-display font-bold text-gradient mb-4">Tunisia Lovers Club</div>
+                <p class="text-gray-400 mb-6 font-accent">
+                    Discovering Tunisia's hidden treasures, one exclusive experience at a time.
+                </p>
+                <div class="text-gray-500 text-sm">
+                    © 2024 Tunisia Lovers Club. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="main.js"></script>
+    
+    <!-- Gallery Specific JavaScript -->
+    <script>
+        let galleryItems = [];
+        let filteredItems = [];
+        let currentLightboxItem = null;
+        let currentPage = 1;
+        const itemsPerPage = 12;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGalleryItems();
+            setupGalleryFilters();
+            setupGallerySort();
+        });
+
+        function loadGalleryItems() {
+            galleryItems = [
+                {
+                    id: 1,
+                    title: "Desert Sunset",
+                    description: "Golden hour in the Sahara Desert creates magical lighting across the sand dunes.",
+                    image: "resources/tunisia-3.jpg",
+                    category: "landscape",
+                    author: "Sarah Chen",
+                    date: "2024-01-15",
+                    rating: 4.9,
+                    location: "Sahara Desert",
+                    camera: "Canon EOS R5",
+                    type: "photo"
+                },
+                {
+                    id: 2,
+                    title: "Traditional Pottery Workshop",
+                    description: "Master artisan creating beautiful ceramic pieces using centuries-old techniques.",
+                    image: "resources/tunisia-2.jpg",
+                    category: "culture",
+                    author: "Marcus Weber",
+                    date: "2024-01-12",
+                    rating: 4.8,
+                    location: "Hennaia Village",
+                    camera: "Sony A7R IV",
+                    type: "photo"
+                },
+                {
+                    id: 3,
+                    title: "Sidi Bou Said Blue Doors",
+                    description: "Iconic blue doors and white walls of the Mediterranean village.",
+                    image: "resources/tunisia-9.jpg",
+                    category: "architecture",
+                    author: "Elena Rodriguez",
+                    date: "2024-01-10",
+                    rating: 4.7,
+                    location: "Sidi Bou Said",
+                    camera: "Fujifilm X-T4",
+                    type: "photo"
+                },
+                {
+                    id: 4,
+                    title: "Desert Oasis Adventure",
+                    description: "Exploring the hidden mountain oasis with its crystal-clear springs.",
+                    image: "resources/tunisia-4.jpg",
+                    category: "landscape",
+                    author: "Ahmed Benali",
+                    date: "2024-01-08",
+                    rating: 4.9,
+                    location: "Chebika Oasis",
+                    camera: "Nikon Z7 II",
+                    type: "photo"
+                },
+                {
+                    id: 5,
+                    title: "Traditional Tunisian Cuisine",
+                    description: "Authentic couscous dish prepared with local ingredients and traditional spices.",
+                    image: "resources/tunisia-1.jpg",
+                    category: "food",
+                    author: "Fatima Al-Zahra",
+                    date: "2024-01-05",
+                    rating: 4.6,
+                    location: "Tunis Medina",
+                    camera: "Canon EOS R6",
+                    type: "photo"
+                },
+                {
+                    id: 6,
+                    title: "Camel Caravan at Dawn",
+                    description: "Traditional camel caravan crossing the desert at sunrise.",
+                    image: "resources/tunisia-11.jpg",
+                    category: "animals",
+                    author: "Khalil Ibrahim",
+                    date: "2024-01-03",
+                    rating: 4.8,
+                    location: "Grand Erg Oriental",
+                    camera: "Sony A9 II",
+                    type: "photo"
+                },
+                {
+                    id: 7,
+                    title: "Mediterranean Coastal Beauty",
+                    description: "Dramatic coastline meeting the turquoise waters of the Mediterranean.",
+                    image: "resources/tunisia-10.jpg",
+                    category: "landscape",
+                    author: "Maria Santos",
+                    date: "2024-01-01",
+                    rating: 4.7,
+                    location: "Cap Bon Peninsula",
+                    camera: "Canon EOS R5",
+                    type: "photo"
+                },
+                {
+                    id: 8,
+                    title: "Roman Ruins of Dougga",
+                    description: "Ancient Roman theater framed by olive trees and blue sky.",
+                    image: "resources/tunisia-14.jpg",
+                    category: "architecture",
+                    author: "Thomas Mueller",
+                    date: "2023-12-28",
+                    rating: 4.9,
+                    location: "Dougga",
+                    camera: "Nikon D850",
+                    type: "photo"
+                },
+                {
+                    id: 9,
+                    title: "Local Market Colors",
+                    description: "Vibrant spices and textiles displayed in the traditional souk.",
+                    image: "resources/tunisia-7.jpg",
+                    category: "culture",
+                    author: "Aisha Khaled",
+                    date: "2023-12-25",
+                    rating: 4.5,
+                    location: "Sfax Medina",
+                    camera: "Fujifilm X-Pro3",
+                    type: "photo"
+                },
+                {
+                    id: 10,
+                    title: "Mountain Landscape",
+                    description: "Rolling hills and olive groves in the Tunisian countryside.",
+                    image: "resources/tunisia-6.jpg",
+                    category: "landscape",
+                    author: "David Park",
+                    date: "2023-12-22",
+                    rating: 4.6,
+                    location: "Northern Tunisia",
+                    camera: "Sony A7R V",
+                    type: "photo"
+                },
+                {
+                    id: 11,
+                    title: "Desert Camp Experience",
+                    description: "Traditional Berber camp under the star-filled desert sky.",
+                    image: "resources/tunisia-8.jpg",
+                    category: "culture",
+                    author: "Lisa Anderson",
+                    date: "2023-12-20",
+                    rating: 4.8,
+                    location: "Sahara Desert",
+                    camera: "Canon EOS R6",
+                    type: "photo"
+                },
+                {
+                    id: 12,
+                    title: "Coastal Village Life",
+                    description: "Fishing boats and traditional white buildings along the coast.",
+                    image: "resources/tunisia-12.jpg",
+                    category: "people",
+                    author: "Roberto Silva",
+                    date: "2023-12-18",
+                    rating: 4.7,
+                    location: "Mahdia",
+                    camera: "Leica Q2",
+                    type: "photo"
+                },
+                {
+                    id: 13,
+                    title: "Desert Dunes Patterns",
+                    description: "Wind-carved patterns in the golden sand dunes.",
+                    image: "resources/tunisia-15.jpg",
+                    category: "landscape",
+                    author: "Jennifer Wu",
+                    date: "2023-12-15",
+                    rating: 4.9,
+                    location: "Erg Chebbi",
+                    camera: "Canon EOS R5",
+                    type: "photo"
+                },
+                {
+                    id: 14,
+                    title: "Traditional Bread Making",
+                    description: "Local baker preparing traditional Tunisian bread in a clay oven.",
+                    image: "resources/tunisia-7.jpg",
+                    category: "food",
+                    author: "Hassan Ali",
+                    date: "2023-12-12",
+                    rating: 4.4,
+                    location: "Kairouan",
+                    camera: "Sony A7 III",
+                    type: "photo"
+                },
+                {
+                    id: 15,
+                    title: "Mountain Hiking Trail",
+                    description: "Scenic hiking trail through the Atlas Mountains.",
+                    image: "resources/tunisia-13.jpg",
+                    category: "landscape",
+                    author: "Michael Brown",
+                    date: "2023-12-10",
+                    rating: 4.6,
+                    location: "Atlas Mountains",
+                    camera: "Nikon Z9",
+                    type: "photo"
+                },
+                {
+                    id: 16,
+                    title: "Desert Transportation",
+                    description: "Traditional camel transportation in the vast Sahara Desert.",
+                    image: "resources/tunisia-11.jpg",
+                    category: "animals",
+                    author: "Anna Smith",
+                    date: "2023-12-08",
+                    rating: 4.7,
+                    location: "Sahara Desert",
+                    camera: "Canon EOS R",
+                    type: "photo"
+                },
+                {
+                    id: 17,
+                    title: "Ancient Olive Trees",
+                    description: "Centuries-old olive trees in the Tunisian countryside.",
+                    image: "resources/tunisia-6.jpg",
+                    category: "landscape",
+                    author: "Carlos Mendez",
+                    date: "2023-12-05",
+                    rating: 4.5,
+                    location: "Sfax Region",
+                    camera: "Fujifilm GFX 100S",
+                    type: "photo"
+                },
+                {
+                    id: 18,
+                    title: "Traditional Textile Weaving",
+                    description: "Artisan weaving beautiful carpets using traditional loom.",
+                    image: "resources/tunisia-2.jpg",
+                    category: "culture",
+                    author: "Rachel Green",
+                    date: "2023-12-03",
+                    rating: 4.8,
+                    location: "Kairouan",
+                    camera: "Sony A7R IV",
+                    type: "photo"
+                },
+                {
+                    id: 19,
+                    title: "Desert Oasis Sunset",
+                    description: "Breathtaking sunset over a hidden desert oasis.",
+                    image: "resources/tunisia-4.jpg",
+                    category: "landscape",
+                    author: "Omar Khalil",
+                    date: "2023-12-01",
+                    rating: 4.9,
+                    location: "Chebika Oasis",
+                    camera: "Canon EOS R5",
+                    type: "photo"
+                },
+                {
+                    id: 20,
+                    title: "Mosque Architecture",
+                    description: "Beautiful Islamic architecture of a traditional mosque.",
+                    image: "resources/tunisia-9.jpg",
+                    category: "architecture",
+                    author: "Sophie Laurent",
+                    date: "2023-11-28",
+                    rating: 4.6,
+                    location: "Tunis",
+                    camera: "Nikon D6",
+                    type: "photo"
+                },
+                {
+                    id: 21,
+                    title: "Desert Adventure Video",
+                    description: "Epic journey through the Sahara Desert with camel trekking.",
+                    image: "resources/tunisia-3.jpg",
+                    category: "video",
+                    author: "Adventure Team",
+                    date: "2023-11-25",
+                    rating: 4.8,
+                    location: "Sahara Desert",
+                    camera: "DJI Pocket 2",
+                    type: "video",
+                    duration: "3:45"
+                },
+                {
+                    id: 22,
+                    title: "Cultural Festival",
+                    description: "Traditional music and dance at a local cultural festival.",
+                    image: "resources/tunisia-7.jpg",
+                    category: "culture",
+                    author: "Culture Explorer",
+                    date: "2023-11-22",
+                    rating: 4.7,
+                    location: "Djerba",
+                    camera: "Sony FX3",
+                    type: "video",
+                    duration: "2:30"
+                },
+                {
+                    id: 23,
+                    title: "Street Food Tour",
+                    description: "Exploring authentic Tunisian street food in the medina.",
+                    image: "resources/tunisia-1.jpg",
+                    category: "food",
+                    author: "Food Lover",
+                    date: "2023-11-20",
+                    rating: 4.6,
+                    location: "Tunis Medina",
+                    camera: "Canon EOS R6",
+                    type: "video",
+                    duration: "4:15"
+                },
+                {
+                    id: 24,
+                    title: "Coastal Drive",
+                    description: "Scenic drive along Tunisia's beautiful Mediterranean coastline.",
+                    image: "resources/tunisia-10.jpg",
+                    category: "landscape",
+                    author: "Travel Vlogger",
+                    date: "2023-11-18",
+                    rating: 4.5,
+                    location: "Cap Bon",
+                    camera: "GoPro Hero 11",
+                    type: "video",
+                    duration: "5:20"
+                }
+            ];
+
+            filteredItems = [...galleryItems];
+            renderGallery();
+        }
+
+        function renderGallery() {
+            const container = document.querySelector('.gallery-grid');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const itemsToShow = filteredItems.slice(startIndex, endIndex);
+
+            if (currentPage === 1) {
+                container.innerHTML = '';
+            }
+
+            itemsToShow.forEach(item => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'masonry-item';
+                galleryItem.innerHTML = `
+                    <div class="gallery-item" onclick="openLightbox(${item.id})">
+                        <div class="relative">
+                            <img src="${item.image}" alt="${item.title}" class="w-full h-auto object-cover">
+                            ${item.type === 'video' ? `
+                                <div class="video-overlay">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
+                                    ${item.duration}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-semibold text-gray-800 text-sm">${item.title}</h3>
+                                <button class="favorite-btn text-lg ${isFavorited(item.id, 'photo') ? 'favorited' : ''}" 
+                                        data-id="${item.id}" data-type="photo" onclick="event.stopPropagation(); toggleFavorite(${item.id}, 'photo')">
+                                    ${isFavorited(item.id, 'photo') ? '♥' : '♡'}
+                                </button>
+                            </div>
+                            <p class="text-gray-600 text-xs mb-3 line-clamp-2">${item.description}</p>
+                            <div class="flex justify-between items-center text-xs text-gray-500">
+                                <span>By ${item.author}</span>
+                                <div class="flex items-center">
+                                    <span class="text-yellow-500 mr-1">★</span>
+                                    <span>${item.rating}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(galleryItem);
+            });
+
+            // Update load more button
+            const loadMoreBtn = document.getElementById('load-more-gallery');
+            if (endIndex >= filteredItems.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'block';
+            }
+        }
+
+        function setupGalleryFilters() {
+            const filterBtns = document.querySelectorAll('.gallery-filter');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active button
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter items
+                    const category = this.dataset.category;
+                    if (category === 'all') {
+                        filteredItems = [...galleryItems];
+                    } else if (category === 'video') {
+                        filteredItems = galleryItems.filter(item => item.type === 'video');
+                    } else {
+                        filteredItems = galleryItems.filter(item => item.category === category && item.type === 'photo');
+                    }
+
+                    currentPage = 1;
+                    document.querySelector('.gallery-grid').innerHTML = '';
+                    renderGallery();
+                });
+            });
+
+            // Load more functionality
+            document.getElementById('load-more-gallery').addEventListener('click', function() {
+                currentPage++;
+                renderGallery();
+            });
+        }
+
+        function setupGallerySort() {
+            const sortSelect = document.getElementById('gallery-sort');
+            sortSelect.addEventListener('change', function() {
+                const sortBy = this.value;
+                
+                switch(sortBy) {
+                    case 'newest':
+                        filteredItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        break;
+                    case 'oldest':
+                        filteredItems.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        break;
+                    case 'popular':
+                        filteredItems.sort((a, b) => b.rating - a.rating);
+                        break;
+                    case 'rating':
+                        filteredItems.sort((a, b) => b.rating - a.rating);
+                        break;
+                    case 'random':
+                        filteredItems = shuffleArray([...filteredItems]);
+                        break;
+                }
+
+                currentPage = 1;
+                document.querySelector('.gallery-grid').innerHTML = '';
+                renderGallery();
+            });
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function openLightbox(itemId) {
+            const item = galleryItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            currentLightboxItem = item;
+            const lightbox = document.getElementById('lightbox');
+            const title = document.getElementById('lightbox-title');
+            const description = document.getElementById('lightbox-description');
+            const media = document.getElementById('lightbox-media');
+            const details = document.getElementById('lightbox-details');
+            const favoriteBtn = document.getElementById('lightbox-favorite-btn');
+
+            title.textContent = item.title;
+            description.textContent = item.description;
+
+            // Load media content
+            if (item.type === 'video') {
+                media.innerHTML = `
+                    <div class="relative bg-black rounded-lg overflow-hidden" style="aspect-ratio: 16/9;">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <button class="bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-4 transition-all">
+                                <svg class="w-8 h-8 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded">
+                            ${item.duration}
+                        </div>
+                    </div>
+                `;
+            } else {
+                media.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}" class="w-full h-auto max-h-96 object-contain rounded-lg">
+                `;
+            }
+
+            // Load details
+            details.innerHTML = `
+                <div><strong>Category:</strong> ${item.category}</div>
+                <div><strong>Author:</strong> ${item.author}</div>
+                <div><strong>Location:</strong> ${item.location}</div>
+                <div><strong>Camera:</strong> ${item.camera}</div>
+                <div><strong>Date:</strong> ${new Date(item.date).toLocaleDateString()}</div>
+                <div><strong>Type:</strong> ${item.type === 'video' ? `Video (${item.duration})` : 'Photo'}</div>
+            `;
+
+            // Update favorite button
+            favoriteBtn.textContent = isFavorited(item.id, 'photo') ? '♥' : '♡';
+            favoriteBtn.className = `text-2xl ${isFavorited(item.id, 'photo') ? 'favorited' : ''}`;
+
+            lightbox.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Add to recently viewed
+            addToRecentlyViewed(item.id, 'photo', item.title, item.image);
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentLightboxItem = null;
+        }
+
+        function toggleFavoriteLightbox() {
+            if (currentLightboxItem) {
+                toggleFavorite(currentLightboxItem.id, 'photo');
+                
+                // Update lightbox favorite button
+                const favoriteBtn = document.getElementById('lightbox-favorite-btn');
+                favoriteBtn.textContent = isFavorited(currentLightboxItem.id, 'photo') ? '♥' : '♡';
+                favoriteBtn.className = `text-2xl ${isFavorited(currentLightboxItem.id, 'photo') ? 'favorited' : ''}`;
+            }
+        }
+
+        function downloadMedia() {
+            if (currentLightboxItem) {
+                showNotification('Download feature coming soon!', 'info');
+            }
+        }
+
+        function shareMedia() {
+            if (currentLightboxItem) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: currentLightboxItem.title,
+                        text: currentLightboxItem.description,
+                        url: window.location.href
+                    });
+                } else {
+                    showNotification('Share feature coming soon!', 'info');
+                }
+            }
+        }
+
+        // Close lightbox when clicking outside
+        document.getElementById('lightbox').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('lightbox').classList.contains('hidden')) return;
+            
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join the Club - Tunisia Lovers Club</title>
+    <meta name="description" content="Join the exclusive Tunisia Lovers Club and get access to premium travel guides, hidden spots, and authentic Tunisian experiences.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --sand: #F5E6D3;
+            --mediterranean-blue: #1B4B5A;
+            --gold: #D4AF37;
+            --charcoal: #2C3E50;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--sand);
+            color: var(--charcoal);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .font-accent {
+            font-family: 'Crimson Text', serif;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--mediterranean-blue), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .signup-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 230, 211, 0.9));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .form-input {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(27, 75, 90, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--mediterranean-blue);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 3px rgba(27, 75, 90, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--mediterranean-blue), #2a5f70);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(27, 75, 90, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(27, 75, 90, 0.4);
+        }
+        
+        .background-pattern {
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(27, 75, 90, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
+        }
+        
+        .interest-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(27, 75, 90, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .interest-card:hover {
+            border-color: var(--mediterranean-blue);
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+        }
+        
+        .interest-card.selected {
+            border-color: var(--mediterranean-blue);
+            background: rgba(27, 75, 90, 0.1);
+        }
+        
+        .membership-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .membership-card:hover {
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2);
+        }
+        
+        .membership-card.selected {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--mediterranean-blue);
+            color: white;
+        }
+        
+        .step.completed {
+            background: var(--gold);
+            color: white;
+        }
+        
+        .step.inactive {
+            background: rgba(27, 75, 90, 0.2);
+            color: var(--charcoal);
+        }
+    </style>
+</head>
+<body class="background-pattern min-h-screen py-12">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-display font-bold text-gradient">Tunisia Lovers Club</a>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+                    <a href="guides.html" class="text-gray-700 hover:text-blue-600 transition-colors">Guides</a>
+                    <a href="map.html" class="text-gray-700 hover:text-blue-600 transition-colors">Map</a>
+                    <a href="gallery.html" class="text-gray-700 hover:text-blue-600 transition-colors">Gallery</a>
+                    <a href="excursions.html" class="text-gray-700 hover:text-blue-600 transition-colors">Excursions</a>
+                    <a href="login.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Container -->
+    <div class="signup-container rounded-2xl shadow-2xl p-8 md:p-12 max-w-4xl w-full mx-4 mt-20">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-display font-bold text-gray-800 mb-4">
+                Join the Tunisia Lovers Club
+            </h1>
+            <p class="text-gray-600 font-accent max-w-2xl mx-auto">
+                Become part of an exclusive community of discerning travelers and unlock 
+                access to Tunisia's most hidden treasures and authentic experiences.
+            </p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step-1">1</div>
+            <div class="step inactive" id="step-2">2</div>
+            <div class="step inactive" id="step-3">3</div>
+        </div>
+
+        <!-- Signup Form -->
+        <form id="signup-form">
+            <!-- Step 1: Personal Information -->
+            <div id="form-step-1" class="form-step">
+                <h2 class="text-2xl font-display font-semibold mb-6 text-center">Personal Information</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <!-- First Name -->
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
+                            First Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="firstName" 
+                            name="firstName" 
+                            required 
+                            class="form-input w-full"
+                            placeholder="Enter your first name"
+                        >
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
+                            Last Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="lastName" 
+                            name="lastName" 
+                            required 
+                            class="form-input w-full"
+                            placeholder="Enter your last name"
+                        >
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-6">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        class="form-input w-full"
+                        placeholder="Enter your email address"
+                    >
+                </div>
+
+                <!-- Password -->
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        class="form-input w-full"
+                        placeholder="Create a secure password"
+                    >
+                    <div class="mt-2 text-sm text-gray-500">
+                        Must be at least 8 characters long
+                    </div>
+                </div>
+
+                <!-- Next Button -->
+                <div class="text-center">
+                    <button 
+                        type="button" 
+                        onclick="nextStep(2)" 
+                        class="btn-primary px-8 py-3"
+                        id="step1-next"
+                    >
+                        Continue
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Travel Interests -->
+            <div id="form-step-2" class="form-step hidden">
+                <h2 class="text-2xl font-display font-semibold mb-6 text-center">Your Travel Interests</h2>
+                <p class="text-gray-600 text-center mb-8 font-accent">
+                    Select the types of experiences you're most interested in exploring in Tunisia.
+                </p>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" id="interests-container">
+                    <!-- Interest Cards will be loaded here -->
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between">
+                    <button 
+                        type="button" 
+                        onclick="previousStep(1)" 
+                        class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                        Back
+                    </button>
+                    <button 
+                        type="button" 
+                        onclick="nextStep(3)" 
+                        class="btn-primary px-8 py-3"
+                        id="step2-next"
+                    >
+                        Continue
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Membership Plan -->
+            <div id="form-step-3" class="form-step hidden">
+                <h2 class="text-2xl font-display font-semibold mb-6 text-center">Choose Your Membership</h2>
+                <p class="text-gray-600 text-center mb-8 font-accent">
+                    Select the membership level that best fits your travel style and preferences.
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8" id="membership-container">
+                    <!-- Membership cards will be loaded here -->
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="mb-8">
+                    <label class="flex items-start">
+                        <input type="checkbox" name="terms" required class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm text-gray-600">
+                            I agree to the 
+                            <a href="#" class="text-blue-600 hover:text-blue-800">Terms of Service</a> 
+                            and 
+                            <a href="#" class="text-blue-600 hover:text-blue-800">Privacy Policy</a>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between">
+                    <button 
+                        type="button" 
+                        onclick="previousStep(2)" 
+                        class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                        Back
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="btn-primary px-8 py-3"
+                        id="submit-btn"
+                    >
+                        Join the Club
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Login Link -->
+        <div class="text-center mt-8">
+            <p class="text-gray-600">
+                Already have an account? 
+                <a href="login.html" class="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                    Sign in
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Signup JavaScript -->
+    <script>
+        let currentStep = 1;
+        let selectedInterests = [];
+        let selectedMembership = 'Explorer';
+
+        // Interest data
+        const interests = [
+            {
+                id: 'history',
+                name: 'History & Culture',
+                description: 'Ancient ruins, museums, heritage sites',
+                icon: '📚'
+            },
+            {
+                id: 'nature',
+                name: 'Nature & Outdoors',
+                description: 'Deserts, oases, mountains, beaches',
+                icon: '🏞️'
+            },
+            {
+                id: 'food',
+                name: 'Culinary Experiences',
+                description: 'Local cuisine, cooking classes, markets',
+                icon: '🍲'
+            },
+            {
+                id: 'adventure',
+                name: 'Adventure Activities',
+                description: 'Hiking, camel riding, desert safaris',
+                icon: '🚵'
+            },
+            {
+                id: 'photography',
+                name: 'Photography',
+                description: 'Scenic spots, architecture, people',
+                icon: '📸'
+            },
+            {
+                id: 'relaxation',
+                name: 'Relaxation & Wellness',
+                description: 'Spas, beaches, peaceful retreats',
+                icon: '🧘'
+            }
+        ];
+
+        // Membership data
+        const membershipPlans = [
+            {
+                id: 'Explorer',
+                name: 'Explorer',
+                price: 'Free',
+                description: 'Perfect for getting started',
+                features: [
+                    '5 basic guides',
+                    'Community access',
+                    'Basic map features',
+                    'Monthly newsletter'
+                ],
+                popular: false
+            },
+            {
+                id: 'Premium',
+                name: 'Premium',
+                price: '$9.99/month',
+                description: 'For serious travelers',
+                features: [
+                    'All Explorer features',
+                    '50+ exclusive guides',
+                    'Full map access',
+                    'Premium excursions',
+                    'Priority support'
+                ],
+                popular: true
+            },
+            {
+                id: 'Elite',
+                name: 'Elite',
+                price: '$19.99/month',
+                description: 'For ultimate experiences',
+                features: [
+                    'All Premium features',
+                    'VIP excursions',
+                    'Personal travel consultant',
+                    'Exclusive events',
+                    '24/7 concierge support'
+                ],
+                popular: false
+            }
+        ];
+
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInterests();
+            loadMembershipPlans();
+        });
+
+        function loadInterests() {
+            const container = document.getElementById('interests-container');
+            container.innerHTML = interests.map(interest => `
+                <div class="interest-card" data-interest="${interest.id}">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4 text-2xl">
+                            ${interest.icon}
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">${interest.name}</h3>
+                            <p class="text-sm text-gray-600">${interest.description}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            const interestCards = document.querySelectorAll('.interest-card');
+            interestCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const interest = this.dataset.interest;
+                    if (selectedInterests.includes(interest)) {
+                        selectedInterests = selectedInterests.filter(i => i !== interest);
+                        this.classList.remove('selected');
+                    } else {
+                        selectedInterests.push(interest);
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        }
+
+        function loadMembershipPlans() {
+            const container = document.getElementById('membership-container');
+            container.innerHTML = membershipPlans.map(plan => `
+                <div class="membership-card ${plan.popular ? 'selected' : ''}" data-membership="${plan.id}">
+                    ${plan.popular ? `
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                            <span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
+                                Most Popular
+                            </span>
+                        </div>
+                    ` : ''}
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-display font-semibold mb-2">${plan.name}</h3>
+                        <div class="text-3xl font-bold text-blue-600 mb-2">${plan.price}</div>
+                        <p class="text-gray-600 text-sm">${plan.description}</p>
+                    </div>
+                    <ul class="space-y-3 text-sm">
+                        ${plan.features.map(feature => `
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                ${feature}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `).join('');
+
+            // Set default selected membership
+            if (membershipPlans.find(plan => plan.popular)) {
+                selectedMembership = membershipPlans.find(plan => plan.popular).id;
+            }
+
+            // Add click handlers
+            const membershipCards = document.querySelectorAll('.membership-card');
+            membershipCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    membershipCards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedMembership = this.dataset.membership;
+                });
+            });
+        }
+
+        function nextStep(step) {
+            if (step === 2) {
+                // Validate step 1
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+
+                if (!firstName || !lastName || !email || !password) {
+                    showNotification('Please fill in all required fields.', 'error');
+                    return;
+                }
+
+                if (password.length < 8) {
+                    showNotification('Password must be at least 8 characters long.', 'error');
+                    return;
+                }
+
+                if (!isValidEmail(email)) {
+                    showNotification('Please enter a valid email address.', 'error');
+                    return;
+                }
+            }
+
+            if (step === 3 && selectedInterests.length === 0) {
+                showNotification('Please select at least one travel interest.', 'error');
+                return;
+            }
+
+            // Hide current step
+            document.getElementById(`form-step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`step-${currentStep}`).classList.add('completed');
+
+            // Show next step
+            currentStep = step;
+            document.getElementById(`form-step-${currentStep}`).classList.remove('hidden');
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+        }
+
+        function previousStep(step) {
+            // Hide current step
+            document.getElementById(`form-step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`step-${currentStep}`).classList.add('inactive');
+
+            // Show previous step
+            currentStep = step;
+            document.getElementById(`form-step-${currentStep}`).classList.remove('hidden');
+            document.getElementById(`step-${currentStep}`).classList.remove('completed', 'inactive');
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Handle form submission
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.textContent;
+
+            try {
+                // Show loading
+                submitBtn.textContent = 'Creating Account...';
+                submitBtn.disabled = true;
+
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+
+                console.log('🔄 Creating account for:', email);
+
+                // Call our backend API
+                const response = await fetch('http://localhost:5000/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: `${firstName} ${lastName}`,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                console.log('📡 Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Signup failed');
+                }
+
+                const result = await response.json();
+                console.log('✅ Signup successful:', result);
+
+                if (result.user) {
+                    // Signup successful!
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    console.log('💾 User saved to localStorage');
+
+                    // Show success message
+                    showNotification(`Welcome to Tunisia Lovers Club, ${firstName}! Redirecting to dashboard...`, 'success');
+
+                    // Wait a bit before redirecting
+                    setTimeout(() => {
+                        console.log('🚀 Redirecting to dashboard...');
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
+                } else {
+                    throw new Error('No user data received from server');
+                }
+
+            } catch (error) {
+                console.error('❌ Signup error:', error);
+                showNotification(error.message || 'Signup failed. Please try again.', 'error');
+            } finally {
+                // Reset button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Notification function
+        function showNotification(message, type) {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.custom-notification');
+            existingNotifications.forEach(notification => notification.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `custom-notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            } text-white`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Check if user is already logged in
+        function checkExistingLogin() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    console.log('👋 User already logged in, redirecting...');
+                    showNotification(`Welcome back, ${user.name}! Redirecting...`, 'info');
+                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                } catch (e) {
+                    console.error('Error parsing stored user:', e);
+                    localStorage.removeItem('currentUser');
+                }
+            }
+        }
+
+        // Check for existing login on page load
+        checkExistingLogin();
+    </script>
+</body>
+</html>

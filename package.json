@@ -1,0 +1,18 @@
+{
+  "name": "tunisia-lovers-club",
+  "version": "1.0.0",
+  "description": "Exclusive Tunisia travel community with premium content",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["tunisia", "travel", "membership", "premium"],
+  "author": "Tunisia Lovers Club",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.38.0"
+  }
+}
