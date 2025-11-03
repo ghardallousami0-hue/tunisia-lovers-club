@@ -145,7 +145,7 @@ async function handleLogin() {
         submitBtn.disabled = true;
         
         // Call backend API
-        const response = await fetch('https://tunisia-lovers-club-1.onrender.com/login', {
+        const response = await fetch('https://tunisia-lovers-club-2.onrender.com/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -212,7 +212,7 @@ async function handleSignup() {
         submitBtn.disabled = true;
         
         // Call backend API
-        const response = await fetch('https://tunisia-lovers-club-1.onrender.com/signup', {
+        const response = await fetch('https://tunisia-lovers-club-2.onrender.com/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

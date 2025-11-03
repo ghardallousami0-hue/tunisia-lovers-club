@@ -421,7 +421,7 @@
             if (currentUser) {
                 try {
                     console.log('👑 Loading premium guides for member...');
-                    const response = await fetch('https://tunisia-lovers-club-1.onrender.com/premium/guides');
+                    const response = await fetch('https://tunisia-lovers-club-2.onrender.com/premium/guides');
                     if (response.ok) {
                         const data = await response.json();
                         premiumGuides = data.guides || [];
