@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupNavigation();
     setupAnimations();
-    checkUserSession();
+    checkprofilesession();
 });
 
 // Initialize application
@@ -113,7 +113,7 @@ function setupAnimations() {
 }
 
 // User session management
-function checkUserSession() {
+function checkprofilesession() {
     const userData = localStorage.getItem('currentUser');
     if (userData) {
         currentUser = JSON.parse(userData);
@@ -135,7 +135,7 @@ function setupLoginForm() {
 // Handle login
 async function handleLogin() {
     const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const passwords = document.getElementById('passwords').value;
     const submitBtn = document.getElementById('submit-btn');
     
     try {
@@ -145,14 +145,14 @@ async function handleLogin() {
         submitBtn.disabled = true;
         
         // Call backend API
-        const response = await fetch('http://localhost:5000/login', {
+        const response = await fetch('https://tunisia-lovers-club-1.onrender.com/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 email: email,
-                password: password
+                passwords: passwords
             })
         });
         
@@ -202,7 +202,7 @@ async function handleSignup() {
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
     const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const passwords = document.getElementById('passwords').value;
     const submitBtn = document.getElementById('submit-btn');
     
     try {
@@ -212,7 +212,7 @@ async function handleSignup() {
         submitBtn.disabled = true;
         
         // Call backend API
-        const response = await fetch('http://localhost:5000/signup', {
+        const response = await fetch('https://tunisia-lovers-club-1.onrender.com/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ async function handleSignup() {
             body: JSON.stringify({
                 name: `${firstName} ${lastName}`,
                 email: email,
-                password: password
+                passwords: passwords
             })
         });
         

@@ -14,6 +14,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <!-- Custom Styles -->
     <style>
         :root {
@@ -374,8 +377,13 @@
         </div>
     </div>
 
-    <!-- Signup JavaScript -->
+    <!-- SECURE Signup JavaScript -->
     <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://hgovltzetqoeiswynmle.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhnb3ZsdHpldHFvZWlzd3lubWxlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwOTE2NTksImV4cCI6MjA3NzY2NzY1OX0.0Va7J_VCcDUatwaq_RaNP3XTgxRObLeqBrGzgMZiB-U';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
         let currentStep = 1;
         let selectedInterests = [];
         let selectedMembership = 'Explorer';
@@ -606,7 +614,7 @@
             return emailRegex.test(email);
         }
 
-        // Handle form submission
+        // SECURE: Handle form submission
         document.getElementById('signup-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -623,47 +631,62 @@
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
 
-                console.log('🔄 Creating account for:', email);
+                console.log('🔄 Creating secure account for:', email);
 
-                // Call our backend API
-                const response = await fetch('http://localhost:5000/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: `${firstName} ${lastName}`,
-                        email: email,
-                        password: password
-                    })
+                // SECURE: Use Supabase Auth instead of your backend
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            name: `${firstName} ${lastName}`,
+                            membership_type: selectedMembership,
+                            interests: selectedInterests
+                        }
+                    }
                 });
 
-                console.log('📡 Response status:', response.status);
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Signup failed');
+                if (error) {
+                    throw new Error(error.message);
                 }
 
-                const result = await response.json();
-                console.log('✅ Signup successful:', result);
+                console.log('✅ Secure signup successful:', data.user);
 
-                if (result.user) {
-                    // Signup successful!
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    console.log('💾 User saved to localStorage');
+                // Create user profile in our profiles table
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .insert([{
+                        id: data.user.id,
+                        name: `${firstName} ${lastName}`,
+                        email: email,
+                        membership_type: selectedMembership
+                    }])
+                    .select()
+                    .single();
 
-                    // Show success message
-                    showNotification(`Welcome to Tunisia Lovers Club, ${firstName}! Redirecting to dashboard...`, 'success');
-
-                    // Wait a bit before redirecting
-                    setTimeout(() => {
-                        console.log('🚀 Redirecting to dashboard...');
-                        window.location.href = 'dashboard.html';
-                    }, 2000);
-                } else {
-                    throw new Error('No user data received from server');
+                if (profileError) {
+                    console.warn('Profile creation warning:', profileError);
                 }
+
+                // Signup successful!
+                const userData = {
+                    id: data.user.id,
+                    email: data.user.email,
+                    name: `${firstName} ${lastName}`,
+                    membershipType: selectedMembership
+                };
+
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                console.log('💾 User saved to localStorage');
+
+                // Show success message
+                showNotification(`Welcome to Tunisia Lovers Club, ${firstName}! Please check your email to confirm your account.`, 'success');
+
+                // Wait a bit before redirecting
+                setTimeout(() => {
+                    console.log('🚀 Redirecting to dashboard...');
+                    window.location.href = 'dashboard.html';
+                }, 3000);
 
             } catch (error) {
                 console.error('❌ Signup error:', error);
@@ -677,7 +700,6 @@
 
         // Notification function
         function showNotification(message, type) {
-            // Remove any existing notifications
             const existingNotifications = document.querySelectorAll('.custom-notification');
             existingNotifications.forEach(notification => notification.remove());
 
@@ -694,25 +716,6 @@
                 }
             }, 5000);
         }
-
-        // Check if user is already logged in
-        function checkExistingLogin() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                try {
-                    const user = JSON.parse(currentUser);
-                    console.log('👋 User already logged in, redirecting...');
-                    showNotification(`Welcome back, ${user.name}! Redirecting...`, 'info');
-                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
-                } catch (e) {
-                    console.error('Error parsing stored user:', e);
-                    localStorage.removeItem('currentUser');
-                }
-            }
-        }
-
-        // Check for existing login on page load
-        checkExistingLogin();
     </script>
 </body>
 </html>

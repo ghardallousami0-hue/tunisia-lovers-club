@@ -1,4 +1,4 @@
-// TUNISIA LOVERS CLUB - COMPLETE WORKING VERSION
+// TUNISIA LOVERS CLUB - SECURE VERSION (NO PASSWORDS!)
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
@@ -14,14 +14,12 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 console.log('🔗 Supabase connected');
 
-// ✅ ROOT ROUTE - FIXES "Route not found"
+// ✅ ROOT ROUTE
 app.get('/', (req, res) => {
   res.json({ 
     message: '🚀 Tunisia Lovers Club API is LIVE!',
     endpoints: {
       health: '/health',
-      signup: '/signup', 
-      login: '/login',
       premium_guides: '/premium/guides',
       premium_phrases: '/premium/phrases'
     },
@@ -38,129 +36,6 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString()
   });
-});
-
-// 🎯 SIGNUP
-app.post('/signup', async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    console.log('📝 Signup attempt:', email);
-    
-    // Simple validation
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    // Try Supabase first, fallback to memory
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .insert([{ 
-          name: name, 
-          email: email, 
-          password: password, 
-          membership_type: 'Explorer' 
-        }])
-        .select();
-
-      if (error) throw error;
-
-      console.log('✅ New user in Supabase:', data[0].name);
-      
-      res.json({
-        message: 'Welcome to Tunisia Lovers Club! 🎉',
-        user: {
-          id: data[0].id,
-          name: data[0].name,
-          email: data[0].email,
-          membershipType: data[0].membership_type
-        }
-      });
-
-    } catch (supabaseError) {
-      console.log('⚠️ Supabase failed, using memory storage');
-      
-      // Fallback to memory storage
-      const users = [];
-      const existingUser = users.find(u => u.email === email);
-      if (existingUser) {
-        return res.status(400).json({ message: 'Email already exists' });
-      }
-
-      const newUser = {
-        id: users.length + 1,
-        name,
-        email,
-        password,
-        membershipType: 'Explorer'
-      };
-
-      users.push(newUser);
-      
-      res.json({
-        message: 'Welcome to Tunisia Lovers Club! 🎉',
-        user: newUser
-      });
-    }
-
-  } catch (error) {
-    console.error('❌ Signup error:', error);
-    res.status(500).json({ message: 'Signup failed. Please try again.' });
-  }
-});
-
-// 🎯 LOGIN
-app.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    console.log('🔐 Login attempt:', email);
-
-    // Try Supabase first, fallback to memory
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .eq('password', password)
-        .single();
-
-      if (error || !data) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-      }
-
-      console.log('✅ Login successful via Supabase:', data.name);
-      
-      res.json({
-        message: 'Welcome back! 👋',
-        user: {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          membershipType: data.membership_type
-        }
-      });
-
-    } catch (supabaseError) {
-      console.log('⚠️ Supabase failed, using memory storage');
-      
-      // Fallback to memory storage
-      const users = [];
-      const user = users.find(u => u.email === email && u.password === password);
-      
-      if (!user) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-      }
-
-      res.json({
-        message: 'Welcome back! 👋',
-        user: user
-      });
-    }
-
-  } catch (error) {
-    console.error('❌ Login error:', error);
-    res.status(500).json({ message: 'Login failed. Please try again.' });
-  }
 });
 
 // 🎯 PREMIUM GUIDES
@@ -213,11 +88,11 @@ app.get('/premium/phrases', (req, res) => {
   });
 });
 
-// 🎯 404 HANDLER - MUST BE LAST!
+// 🎯 404 HANDLER
 app.use('*', (req, res) => {
   res.status(404).json({ 
     message: 'Route not found',
-    available_routes: ['/', '/health', '/signup', '/login', '/premium/guides', '/premium/phrases']
+    available_routes: ['/', '/health', '/premium/guides', '/premium/phrases']
   });
 });
 
